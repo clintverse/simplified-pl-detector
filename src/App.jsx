@@ -30,6 +30,7 @@ function App() {
       setResults(analysisResults);
     } catch (err) {
       setError('Analysis failed. Please check your files and try again.');
+      console.error('Analysis error:', err);
     } finally {
       setIsAnalyzing(false);
     }

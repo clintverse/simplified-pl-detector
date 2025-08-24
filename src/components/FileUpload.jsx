@@ -7,7 +7,7 @@ const FileUpload = ({ onFilesUpload, isAnalyzing }) => {
   const fileInputRef = useRef(null);
 
   const validateFile = (file) => {
-    const validTypes = ['.txt', '.doc', '.docx'];
+    const validTypes = ['.txt'];
     const extension = '.' + file.name.split('.').pop()?.toLowerCase();
     
     if (!validTypes.includes(extension)) {
@@ -84,6 +84,12 @@ const FileUpload = ({ onFilesUpload, isAnalyzing }) => {
     onFilesUpload(updatedFiles);
   };
 
+  const openFileDialog = () => {
+    if (!isAnalyzing && fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div
@@ -97,6 +103,7 @@ const FileUpload = ({ onFilesUpload, isAnalyzing }) => {
         }}
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleDrop}
+        onClick={openFileDialog}
         className={`border-2 border-dashed rounded-lg p-8 text-center ${
           dragActive ? 'border-blue-400 bg-blue-50' : 'border-slate-300'
         } ${isAnalyzing ? 'opacity-50' : 'cursor-pointer'}`}
@@ -105,10 +112,10 @@ const FileUpload = ({ onFilesUpload, isAnalyzing }) => {
           ref={fileInputRef}
           type="file"
           multiple
-          accept=".txt,.doc,.docx"
+          accept=".txt"
           onChange={handleFileInput}
           disabled={isAnalyzing}
-          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          className="hidden"
         />
         
         <div className="w-16 h-16 mx-auto bg-slate-100 rounded-full flex items-center justify-center mb-4">
@@ -117,7 +124,7 @@ const FileUpload = ({ onFilesUpload, isAnalyzing }) => {
         
         <h3 className="text-lg font-medium text-slate-900 mb-2">Upload Files</h3>
         <p className="text-sm text-slate-600 mb-4">Drag files here or click to browse</p>
-        <p className="text-xs text-slate-500">Supports: .txt, .doc, .docx (max 5MB)</p>
+        <p className="text-xs text-slate-500">Supports: .txt files only (max 5MB)</p>
       </div>
 
       {files.length > 0 && (
@@ -137,7 +144,10 @@ const FileUpload = ({ onFilesUpload, isAnalyzing }) => {
               </div>
               
               <button
-                onClick={() => removeFile(file.id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeFile(file.id);
+                }}
                 disabled={isAnalyzing}
                 className="p-2 text-slate-400 hover:text-red-500"
               >

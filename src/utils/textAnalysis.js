@@ -1,6 +1,11 @@
 export function calculateCosineSimilarity(text1, text2) {
+  if (!text1 || !text2) return 0;
+  
   const words1 = tokenize(text1);
   const words2 = tokenize(text2);
+  
+  if (words1.length === 0 && words2.length === 0) return 1;
+  if (words1.length === 0 || words2.length === 0) return 0;
   
   const allWords = [...new Set([...words1, ...words2])];
   
@@ -13,8 +18,13 @@ export function calculateCosineSimilarity(text1, text2) {
 }
 
 export function calculateJaccardSimilarity(text1, text2) {
+  if (!text1 || !text2) return 0;
+  
   const words1 = new Set(tokenize(text1));
   const words2 = new Set(tokenize(text2));
+  
+  if (words1.size === 0 && words2.size === 0) return 1;
+  if (words1.size === 0 || words2.size === 0) return 0;
   
   const intersection = new Set([...words1].filter(x => words2.has(x)));
   const union = new Set([...words1, ...words2]);
@@ -23,22 +33,31 @@ export function calculateJaccardSimilarity(text1, text2) {
 }
 
 function tokenize(text) {
+  if (!text || typeof text !== 'string') return [];
+  
   return text
     .split(' ')
-    .filter(word => word.length > 2 && !isStopWord(word));
+    .filter(word => word && word.length > 2 && !isStopWord(word));
 }
 
 function createVector(words, vocabulary) {
   const vector = new Array(vocabulary.length).fill(0);
   
+  const wordCount = {};
+  words.forEach(word => {
+    wordCount[word] = (wordCount[word] || 0) + 1;
+  });
+  
   vocabulary.forEach((word, index) => {
-    vector[index] = words.filter(w => w === word).length;
+    vector[index] = wordCount[word] || 0;
   });
   
   return vector;
 }
 
 function cosineSimilarity(vector1, vector2) {
+  if (vector1.length !== vector2.length) return 0;
+  
   let dotProduct = 0;
   let magnitude1 = 0;
   let magnitude2 = 0;
@@ -57,5 +76,5 @@ function cosineSimilarity(vector1, vector2) {
 function isStopWord(word) {
   const stopWords = ['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'should', 'could', 'can', 'may', 'might', 'must', 'shall', 'i', 'you', 'he', 'she', 'it', 'we', 'they', 'me', 'him', 'her', 'us', 'them', 'this', 'that', 'these', 'those'];
   
-  return stopWords.includes(word);
+  return stopWords.includes(word.toLowerCase());
 }
